@@ -1,11 +1,21 @@
 import copy
+history = {}
 size = 4
 hole = (size - 1, size - 1)
+myqueue = []
 
 solved = [[0 for x in range(size)] for x in range(size)] 
 for i in range(0, size):
 	for j in range(0, size):
 		solved[i][j] = j + size*i 
+
+def m2s(tmp):
+	ret = ''
+	for i in range(0, size):
+		for j in range(0, size):
+			ret += (str(tmp[i][j]) + ' ')
+	return ret
+
 
 def printmatrix(tmp):
 	for i in range(0, size):
@@ -47,7 +57,6 @@ def findhole(tmp):
 def getAdjacencyList(tmp):
 	ret = []
 	hole = findhole(tmp) 
-#	print hole[0], hole[1]
 	if 0 <= hole[0] - 1:
 		ret.append((hole[0] - 1, hole[1]))
 	if size > hole[0] + 1:
@@ -56,9 +65,6 @@ def getAdjacencyList(tmp):
 		ret.append((hole[0], hole[1] - 1))
 	if  size > hole[1] + 1:
 		ret.append((hole[0], hole[1] + 1))
-#	print 'ret is ' + str(len(ret)) + ' long'
-#	for x in ret:
-#		print x[0], x[1]
 	return ret
 
 
@@ -69,16 +75,25 @@ def getSwappedMatrix(tmp, swap):
 #	print v, swap[0], swap[1]
 	mycopy[hole[0]][hole[1]] = v
 	mycopy[swap[0]][swap[1]] = 15
-	printmatrix(mycopy)
+	#printmatrix(mycopy)
 	return mycopy
 
+#temp = [[0 for x in range(size)] for x in range(size)] 
+#for i in range(0, size):
+#	for j in range(0, size):
+#		temp[i][j] = i + size*j
+temp = copy.deepcopy(solved)
+temp[0][0] = 4
+temp[0][1] = 0
+temp[0][2] = 1
+temp[0][3] = 2
+temp[1][0] = 8
+temp[2][0] = 12
+temp[3][0] = 15
+temp[1][3] = 3
+temp[2][3] = 7
+temp[3][3] = 11
 
-temp = [[0 for x in range(size)] for x in range(size)] 
-for i in range(0, size):
-	for j in range(0, size):
-		temp[i][j] = i + size*j
-temp[2][2] = 15
-temp[size - 1][size - 1] = 10
 
 print 'SOLVED: ' 
 printmatrix(solved)
@@ -88,39 +103,41 @@ printmatrix(temp)
 loc1 = getLoc(solved, 3)
 loc2 = getLoc(temp, 3)
 print
-#print loc1[0], loc1[1]
-#print loc2[0], loc2[1]
-print summandist(temp)
+#print summandist(temp)
 findhole(temp)
-mylist = getAdjacencyList(temp)
-mymin = 1000 
 best = temp
-for it in mylist:
-	swapped = getSwappedMatrix(temp, it)
-	attempt = summandist(swapped)
-	print it[0], it[1], attempt
-	if attempt < mymin:
-		mymin = attempt
-		best = swapped
-print '*****'
-printmatrix(best)
 
-for i in range(0, 12):
+for i in range(0, 10):
 	mymin = 1000
 	####################
 	temp = copy.deepcopy(best)
 	mylist = getAdjacencyList(temp)
+	bestflip = (0, 0)
 	for it in mylist:
 		swapped = getSwappedMatrix(temp, it)
 		attempt = summandist(swapped)
-		print it[0], it[1], attempt
-		if attempt <= mymin:
+	#	print it[0], it[1], attempt
+		if attempt < mymin:
 			mymin = attempt
 			best = swapped
-	print '*****'
-	printmatrix(best)
+			bestflip = it
+	history[m2s(temp)] = m2s(best)
+	myqueue.append(bestflip)
+	if mymin == 0:
+		print 'Found the Matrix!'
+		printmatrix(best)
+		break	
+	#print '*****'
+	#printmatrix(best)
 
+m2s(best)
+print
+print 'swaps to reach solution:'
+for x in myqueue:
+	print x
 
+for k in history:
+	print k, history[k]
 
 
 
